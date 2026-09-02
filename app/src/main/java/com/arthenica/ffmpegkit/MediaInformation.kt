@@ -12,6 +12,7 @@ class StreamInformation(
     val bitrate: String? = null,
     val sampleRate: String? = null,
     val channels: String? = null,
+    val allProperties: Map<String, Any>? = null,
     val properties: Map<String, Any> = emptyMap()
 ) {
     fun getIndex(): String? = index
@@ -19,6 +20,7 @@ class StreamInformation(
     fun getCodec(): String? = codec
     fun getWidth(): String? = width
     fun getHeight(): String? = height
+    fun getAllProperties(): Map<String, Any>? = allProperties
     fun getStringProperty(key: String): String? = properties[key] as? String
 }
 
