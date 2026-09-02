@@ -35,11 +35,7 @@ class MediaInformationSession(
     val returnCode: ReturnCode = ReturnCode.CANCEL,
     val output: String = "",
     val mediaInformation: MediaInformation? = null
-) {
-    fun getMediaInformation(): MediaInformation? = mediaInformation
-    fun getReturnCode(): ReturnCode = returnCode
-    fun getOutput(): String = output
-}
+)
 
 /**
  * FFprobeSession stub
