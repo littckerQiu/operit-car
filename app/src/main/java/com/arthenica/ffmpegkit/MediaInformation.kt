@@ -29,18 +29,18 @@ class StreamInformation(
  */
 class MediaInformation(
     val filePath: String = "",
-    val duration: Long = 0,
-    val startTime: Long = 0,
+    val duration: String? = null,
+    val startTime: String? = null,
     val size: Long = 0,
-    val bitrate: Long = 0,
-    val format: String = "",
+    val bitrate: String? = null,
+    val format: String? = null,
     val streams: List<StreamInformation> = emptyList(),
     val properties: Map<String, Any> = emptyMap()
 ) {
-    fun getDuration(): Long = duration
+    fun getDuration(): String? = duration
     fun getSize(): Long = size
-    fun getBitrate(): Long = bitrate
-    fun getFormat(): String = format
+    fun getBitrate(): String? = bitrate
+    fun getFormat(): String? = format
     fun getFilePath(): String = filePath
     fun getStreams(): List<StreamInformation> = streams
     fun getStringProperty(key: String): String? = properties[key] as? String

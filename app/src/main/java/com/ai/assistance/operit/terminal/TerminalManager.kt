@@ -238,12 +238,37 @@ class TerminalManager private constructor(private val context: Context) {
 }
 
 /**
+ * ANSI 解析器（车机版简化实现）
+ */
+class AnsiParser {
+    private var screenContent: Array<Array<TerminalChar>> = emptyArray()
+
+    fun getScreenContent(): Array<Array<TerminalChar>> = screenContent
+
+    fun setScreenContent(content: Array<Array<TerminalChar>>) {
+        screenContent = content
+    }
+}
+
+/**
+ * 当前执行的命令信息
+ */
+data class CurrentExecutingCommand(
+    val command: String = "",
+    val commandId: String = "",
+    val isExecuting: Boolean = false,
+    val startTime: Long = 0L
+)
+
+/**
  * 终端会话数据类
  */
 data class TerminalSession(
     val id: String,
     val title: String,
-    val currentDirectory: String
+    val currentDirectory: String,
+    val currentExecutingCommand: CurrentExecutingCommand? = null,
+    val ansiParser: AnsiParser = AnsiParser()
 )
 
 /**

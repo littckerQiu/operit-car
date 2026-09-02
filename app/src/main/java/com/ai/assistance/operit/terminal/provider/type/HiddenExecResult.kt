@@ -19,4 +19,19 @@ data class HiddenExecResult(
     }
 
     val isSuccess: Boolean get() = state == State.SUCCESS
+
+    /** 兼容原始 API：isOk 是 isSuccess 的别名 */
+    val isOk: Boolean get() = isSuccess
+
+    /** 合并输出（stdout + stderr） */
+    val output: String
+        get() = if (stderr.isBlank()) stdout else "$stdout\n$stderr".trim()
+
+    /** 原始输出预览（前500字符） */
+    val rawOutputPreview: String
+        get() = output.take(500)
+
+    /** 错误输出 */
+    val error: String
+        get() = stderr
 }
