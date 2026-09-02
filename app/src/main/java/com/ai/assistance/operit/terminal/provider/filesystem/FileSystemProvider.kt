@@ -309,6 +309,54 @@ class FileSystemProvider(private val context: Context) {
     }
 
     /**
+     * 搜索文件
+     */
+    fun findFiles(basePath: String, pattern: String, maxDepth: Int = -1, caseInsensitive: Boolean = false): List<String> {
+        return try {
+            val baseDir = File(basePath)
+            if (!baseDir.exists() || !baseDir.isDirectory) return emptyList()
+
+            val regex = if (caseInsensitive) {
+                Regex(pattern, RegexOption.IGNORE_CASE)
+            } else {
+                Regex(pattern)
+            }
+
+            val results = mutableListOf<String>()
+            baseDir.walkTopDown().maxDepth(if (maxDepth < 0) Int.MAX_VALUE else maxDepth).forEach { file ->
+                if (file.isFile && regex.containsMatchIn(file.name)) {
+                    results.add(file.absolutePath)
+                }
+            }
+            results
+        } catch (e: Exception) {
+            AppLogger.e(TAG, "搜索文件失败", e)
+            emptyList()
+        }
+    }
+
+    /**
+     * 获取文件信息
+     */
+    fun getFileInfo(path: String): FileInfo? {
+        return try {
+            val file = File(path)
+            if (!file.exists()) return null
+            FileInfo(
+                name = file.name,
+                path = file.absolutePath,
+                isDirectory = file.isDirectory,
+                size = file.length(),
+                lastModified = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(file.lastModified())),
+                permissions = getFilePermissions(file)
+            )
+        } catch (e: Exception) {
+            AppLogger.e(TAG, "获取文件信息失败", e)
+            null
+        }
+    }
+
+    /**
      * 获取文件权限字符串（简化实现）
      */
     private fun getFilePermissions(file: File): String {
