@@ -211,13 +211,18 @@ class FileSystemProvider(private val context: Context) {
         }
     }
 
-    fun createDirectory(path: String, createParents: Boolean = true): Boolean {
+    fun createDirectory(path: String, createParents: Boolean = true): FileOperationResult {
         return try {
             val dir = File(path)
-            if (createParents) dir.mkdirs() else dir.mkdir()
+            val result = if (createParents) dir.mkdirs() else dir.mkdir()
+            if (result) {
+                FileOperationResult(success = true, message = "Directory created successfully")
+            } else {
+                FileOperationResult(success = false, message = "Directory creation failed")
+            }
         } catch (e: Exception) {
             AppLogger.e(TAG, "创建目录失败", e)
-            false
+            FileOperationResult(success = false, message = e.message ?: "Create directory failed")
         }
     }
 
