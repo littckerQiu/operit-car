@@ -559,8 +559,8 @@ dependencies {
     implementation("com.google.android.filament:gltfio-android:1.69.2")
     implementation("com.google.android.filament:filament-utils-android:1.69.2")
     implementation(libs.androidx.ui.graphics.android)
-    // 车机版：使用官方 FFmpegKit 依赖替代本地 AAR
-    implementation("com.arthenica:ffmpeg-kit-full:5.1.LTS")
+    // 车机版：FFmpegKit 使用本地 stub 类（未集成实际 FFmpeg）
+    // implementation("com.arthenica:ffmpeg-kit-full:5.1.LTS")
     implementation("com.arthenica:smart-exception-common:0.2.1")
     implementation("com.arthenica:smart-exception-java:0.2.1")
     implementation(libs.androidx.runtime.android)
