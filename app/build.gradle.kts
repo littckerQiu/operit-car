@@ -152,20 +152,7 @@ val requiredExternallyBuiltNativeLibraries =
         file("src/main/jniLibs/arm64-v8a/liboperit_ripgrep.so"),
     )
 
-val ffmpegKitLocalAar = file("libs/ffmpeg-kit-local.aar")
-val requiredFfmpegKitArm64Libraries =
-    setOf(
-        "jni/arm64-v8a/libavcodec.so",
-        "jni/arm64-v8a/libavdevice.so",
-        "jni/arm64-v8a/libavfilter.so",
-        "jni/arm64-v8a/libavformat.so",
-        "jni/arm64-v8a/libavutil.so",
-        "jni/arm64-v8a/libc++_shared.so",
-        "jni/arm64-v8a/libffmpegkit.so",
-        "jni/arm64-v8a/libffmpegkit_abidetect.so",
-        "jni/arm64-v8a/libswresample.so",
-        "jni/arm64-v8a/libswscale.so",
-    )
+// 车机版：FFmpegKit 使用官方 Maven 依赖，无需本地 AAR 验证
 
 val verifyExternallyBuiltNativeLibraries by tasks.registering {
     description = "Checks native libraries built outside Gradle before Android packaging."
@@ -174,8 +161,6 @@ val verifyExternallyBuiltNativeLibraries by tasks.registering {
         "requiredLibraries",
         requiredExternallyBuiltNativeLibraries.map { library -> library.path },
     )
-    inputs.property("ffmpegKitAar", ffmpegKitLocalAar.path)
-    inputs.property("ffmpegKitArm64Libraries", requiredFfmpegKitArm64Libraries)
     outputs.upToDateWhen { false }
 
     doLast {
@@ -187,24 +172,6 @@ val verifyExternallyBuiltNativeLibraries by tasks.registering {
             "Missing or empty externally built native library: " +
                 invalidLibraries.joinToString { library -> library.path } +
                 ". Run tools/native_ripgrep/build_native_ripgrep.ps1 before packaging."
-        }
-
-        require(ffmpegKitLocalAar.isFile && ffmpegKitLocalAar.length() > 0L) {
-            "Missing or empty FFmpegKit AAR: ${ffmpegKitLocalAar.path}. " +
-                "Build it with tools/ffmpeg/build_ffmpeg_kit_wsl.sh and import it with " +
-                "tools/ffmpeg/import_local_ffmpeg_kit.ps1 before packaging."
-        }
-
-        ZipFile(ffmpegKitLocalAar).use { archive ->
-            val invalidEntries =
-                requiredFfmpegKitArm64Libraries.filter { entryName ->
-                    val entry = archive.getEntry(entryName)
-                    entry == null || entry.size <= 0L
-                }
-            require(invalidEntries.isEmpty()) {
-                "FFmpegKit AAR is missing or contains empty arm64 native libraries: " +
-                    invalidEntries.joinToString()
-            }
         }
     }
 }
@@ -592,8 +559,8 @@ dependencies {
     implementation("com.google.android.filament:gltfio-android:1.69.2")
     implementation("com.google.android.filament:filament-utils-android:1.69.2")
     implementation(libs.androidx.ui.graphics.android)
-    // The only vendored artifact is the custom FFmpegKit AAR.
-    implementation(files("libs/ffmpeg-kit-local.aar"))
+    // 车机版：使用官方 FFmpegKit 依赖替代本地 AAR
+    implementation("com.arthenica:ffmpeg-kit-full:6.0-2")
     implementation("com.arthenica:smart-exception-common:0.2.1")
     implementation("com.arthenica:smart-exception-java:0.2.1")
     implementation(libs.androidx.runtime.android)
