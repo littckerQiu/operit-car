@@ -76,7 +76,7 @@ class FileSystemProvider(private val context: Context) {
                     path = file.absolutePath,
                     isDirectory = file.isDirectory,
                     size = file.length(),
-                    lastModified = file.lastModified(),
+                    lastModified = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(file.lastModified())),
                     permissions = getFilePermissions(file)
                 )
             }
@@ -176,14 +176,14 @@ class FileSystemProvider(private val context: Context) {
         }
     }
 
-    fun writeFile(path: String, content: String): Boolean {
+    fun writeFile(path: String, content: String): FileOperationResult {
         return writeFile(path, content, false)
     }
 
     /**
      * 写入文件（支持追加模式）
      */
-    fun writeFile(path: String, content: String, append: Boolean): Boolean {
+    fun writeFile(path: String, content: String, append: Boolean): FileOperationResult {
         return try {
             val file = File(path)
             file.parentFile?.mkdirs()
@@ -192,22 +192,22 @@ class FileSystemProvider(private val context: Context) {
             } else {
                 file.writeText(content)
             }
-            true
+            FileOperationResult(success = true, message = "File written successfully")
         } catch (e: Exception) {
             AppLogger.e(TAG, "写入文件失败", e)
-            false
+            FileOperationResult(success = false, message = e.message ?: "Write failed")
         }
     }
 
-    fun writeFileBytes(path: String, bytes: ByteArray): Boolean {
+    fun writeFileBytes(path: String, bytes: ByteArray): FileOperationResult {
         return try {
             val file = File(path)
             file.parentFile?.mkdirs()
             file.writeBytes(bytes)
-            true
+            FileOperationResult(success = true, message = "File written successfully")
         } catch (e: Exception) {
             AppLogger.e(TAG, "写入文件字节失败", e)
-            false
+            FileOperationResult(success = false, message = e.message ?: "Write failed")
         }
     }
 
@@ -233,53 +233,65 @@ class FileSystemProvider(private val context: Context) {
     /**
      * 删除文件或目录
      */
-    fun delete(path: String, recursive: Boolean = true): Boolean {
+    fun delete(path: String, recursive: Boolean = true): FileOperationResult {
         return try {
             val file = File(path)
-            if (recursive) {
+            val result = if (recursive) {
                 file.deleteRecursively()
             } else {
                 file.delete()
             }
+            if (result) {
+                FileOperationResult(success = true, message = "File deleted successfully")
+            } else {
+                FileOperationResult(success = false, message = "Delete failed")
+            }
         } catch (e: Exception) {
             AppLogger.e(TAG, "删除失败", e)
-            false
+            FileOperationResult(success = false, message = e.message ?: "Delete failed")
         }
     }
 
     /**
      * 移动文件或目录
      */
-    fun move(sourcePath: String, destPath: String): Boolean {
+    fun move(sourcePath: String, destPath: String): FileOperationResult {
         return try {
             val source = File(sourcePath)
             val dest = File(destPath)
             dest.parentFile?.mkdirs()
-            source.renameTo(dest)
+            val result = source.renameTo(dest)
+            if (result) {
+                FileOperationResult(success = true, message = "File moved successfully")
+            } else {
+                FileOperationResult(success = false, message = "Move failed")
+            }
         } catch (e: Exception) {
             AppLogger.e(TAG, "移动文件失败", e)
-            false
+            FileOperationResult(success = false, message = e.message ?: "Move failed")
         }
     }
 
     /**
      * 复制文件或目录
      */
-    fun copy(sourcePath: String, destPath: String, recursive: Boolean = true): Boolean {
+    fun copy(sourcePath: String, destPath: String, recursive: Boolean = true): FileOperationResult {
         return try {
             val source = File(sourcePath)
             val dest = File(destPath)
-            if (!source.exists()) return false
+            if (!source.exists()) {
+                return FileOperationResult(success = false, message = "Source not found")
+            }
             dest.parentFile?.mkdirs()
             if (source.isDirectory && recursive) {
                 source.copyRecursively(dest, overwrite = true)
             } else {
                 source.copyTo(dest, overwrite = true)
             }
-            true
+            FileOperationResult(success = true, message = "File copied successfully")
         } catch (e: Exception) {
             AppLogger.e(TAG, "复制文件失败", e)
-            false
+            FileOperationResult(success = false, message = e.message ?: "Copy failed")
         }
     }
 
@@ -311,6 +323,14 @@ data class FileInfo(
     val path: String,
     val isDirectory: Boolean,
     val size: Long,
-    val lastModified: Long,
+    val lastModified: String,
     val permissions: String = "rw-"
+)
+
+/**
+ * 文件操作结果
+ */
+data class FileOperationResult(
+    val success: Boolean,
+    val message: String
 )
