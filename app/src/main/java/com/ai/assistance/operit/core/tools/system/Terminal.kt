@@ -58,14 +58,6 @@ class Terminal private constructor(private val context: Context) {
     val isFullscreen = terminalManager.isFullscreen
 
     /**
-     * 检查终端是否已连接
-     * 车机版使用本地 shell，始终返回 true
-     */
-    fun isConnected(): Boolean {
-        return terminalState.value.isConnected
-    }
-
-    /**
      * 初始化终端管理器
      */
     suspend fun initialize(): Boolean {

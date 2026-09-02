@@ -5,6 +5,7 @@ import com.ai.assistance.operit.util.AppLogger
 import com.ai.assistance.operit.terminal.data.TerminalState
 import com.ai.assistance.operit.terminal.provider.filesystem.FileSystemProvider
 import com.ai.assistance.operit.terminal.provider.type.HiddenExecResult
+import com.ai.assistance.operit.terminal.view.domain.ansi.TerminalChar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
