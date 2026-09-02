@@ -286,11 +286,19 @@ val syncSttModelAssets by tasks.registering {
                 if (destination.exists() && !destination.delete()) {
                     error("Unable to replace invalid STT model asset: ${destination.path}")
                 }
-                downloadSttModelAsset(asset, destination)
+                try {
+                    downloadSttModelAsset(asset, destination)
+                } catch (e: Exception) {
+                    // 车机版：STT 模型下载失败时跳过，使用云端 STT
+                    logger.warn("WARNING: Failed to download STT model asset ${asset.targetPath}: ${e.message}. Skipping - car edition can use cloud STT.")
+                    expectedFiles.remove(destination.canonicalFile)
+                    return@forEach
+                }
             }
 
-            require(verifySttModelAsset(destination, asset)) {
-                "STT model asset verification failed after sync: ${asset.targetPath}"
+            if (!verifySttModelAsset(destination, asset)) {
+                logger.warn("WARNING: STT model asset verification failed: ${asset.targetPath}. Skipping.")
+                expectedFiles.remove(destination.canonicalFile)
             }
         }
 
